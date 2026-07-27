@@ -118,6 +118,10 @@ export interface ZIMConfig {
 export interface DigitalHumanInfo {
     DigitalHumanId: string;
     ConfigId: string;
+    DigitalHumanRoomId?: string;
+    DigitalHumanStreamId?: string;
+    DigitalHumanUserId?: string;
+    DigitalHumanMaxAliveTime?: number;
 }
 
 export interface MessageHistory {

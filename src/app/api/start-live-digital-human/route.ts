@@ -63,7 +63,8 @@ function randomId(prefix: string): string {
 
 function getDigitalHumanConfig(
   body: StartLiveDigitalHumanRequest,
-  nativeBody: NativeStartLiveDigitalHumanRequest
+  nativeBody: NativeStartLiveDigitalHumanRequest,
+  rtcConfig?: LiveDigitalHumanRtcRequest
 ): DigitalHumanInfo | null {
   if (body.digital_human?.DigitalHumanId && body.digital_human?.ConfigId) {
     return body.digital_human;
@@ -77,6 +78,10 @@ function getDigitalHumanConfig(
     return {
       DigitalHumanId: body.digital_human_id,
       ConfigId: body.config_id,
+      DigitalHumanRoomId: rtcConfig?.RoomId,
+      DigitalHumanStreamId: rtcConfig?.AgentStreamId,
+      DigitalHumanUserId: rtcConfig?.AgentUserId,
+      DigitalHumanMaxAliveTime: 200
     };
   }
 
@@ -99,7 +104,7 @@ function normalizeRequestBody(rawBody: unknown): NormalizedStartLiveDigitalHuman
 
   return {
     agentId: body.agent_id || nativeBody.AgentId || CONSTANTS.AGENT_ID,
-    digitalHumanConfig: getDigitalHumanConfig(body, nativeBody),
+    digitalHumanConfig: getDigitalHumanConfig(body, nativeBody, rtcConfig),
     rtcConfig,
     cdnConfig: nativeBody.CDN || (body.cdn_url ? { Url: body.cdn_url } : null),
     ttsConfig: body.tts || nativeBody.TTS || null,
