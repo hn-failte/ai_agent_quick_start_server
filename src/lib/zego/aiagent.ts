@@ -277,54 +277,57 @@ export class ZegoAIAgent {
         const ttsVoiceId = process.env.TTS_VOICE_ID || "";
         const ttsGroupId = process.env.TTS_GROUP_ID || "";
 
-        if (ttsVendor || ttsApiKey || ttsVoiceId || ttsGroupId || process.env.TTS_MODEL) {
-            if ((ttsVendor || "MiniMax") !== "MiniMax") {
-                throw new Error(`Unsupported TTS_VENDOR: ${(ttsVendor || "MiniMax")}. Only MiniMax is supported by the default config builder.`);
+        switch (ttsVendor) {
+            case "MiniMax": {
+                if (ttsApiKey || ttsVoiceId || ttsGroupId || ttsModel) {
+                    return {
+                        Vendor: ttsVendor,
+                        Params: {
+                            "app": {
+                                "group_id": ttsGroupId,
+                                "api_key": ttsApiKey
+                            },
+                            "model": ttsModel,
+                            "voice_setting": {
+                                "voice_id": ttsVoiceId
+                            },
+                        },
+                        FilterText: [{ BeginCharacters: "(", EndCharacters: ")" }, { BeginCharacters: "（", EndCharacters: "）" }, { BeginCharacters: "{", EndCharacters: "}" }],
+                    };
+                }
             }
 
-            return {
-                Vendor: "MiniMax",
-                Params: {
-                    "app": {
-                        "group_id": ttsGroupId,
-                        "api_key": ttsApiKey
-                    },
-                    "model": ttsModel,
-                    "voice_setting": {
-                        "voice_id": ttsVoiceId
-                    },
-                },
-                FilterText: [{ BeginCharacters: "(", EndCharacters: ")" }, { BeginCharacters: "（", EndCharacters: "）" }, { BeginCharacters: "{", EndCharacters: "}" }],
-            };
+            case "ByteDanceV3": {
+                if (
+                    process.env.TTS_BYTEDANCE_APP_ID ||
+                    process.env.TTS_BYTEDANCE_TOKEN ||
+                    process.env.TTS_BYTEDANCE_CLUSTER ||
+                    process.env.TTS_BYTEDANCE_VOICE_TYPE
+                ) {
+                    return {
+                        Vendor: ttsVendor,
+                        Params: {
+                            "app": {
+                                "appid": process.env.TTS_BYTEDANCE_APP_ID || "",
+                                "token": process.env.TTS_BYTEDANCE_TOKEN || "",
+                                "cluster": process.env.TTS_BYTEDANCE_CLUSTER || ""
+                            },
+                            "speed_ratio": 1,
+                            "volume_ratio": 1,
+                            "pitch_ratio": 1,
+                            "emotion": "happy",
+                            "audio": {
+                                "rate": 24000,
+                                "voice_type": process.env.TTS_BYTEDANCE_VOICE_TYPE || ""
+                            }
+                        },
+                        FilterText: [{ BeginCharacters: "(", EndCharacters: ")" }, { BeginCharacters: "（", EndCharacters: "）" }, { BeginCharacters: "{", EndCharacters: "}" }],
+                    };
+                }
+            }
         }
 
-        if (
-            process.env.TTS_BYTEDANCE_APP_ID ||
-            process.env.TTS_BYTEDANCE_TOKEN ||
-            process.env.TTS_BYTEDANCE_CLUSTER ||
-            process.env.TTS_BYTEDANCE_VOICE_TYPE
-        ) {
-            return {
-                Vendor: "ByteDanceV3",
-                Params: {
-                    "app": {
-                        "appid": process.env.TTS_BYTEDANCE_APP_ID || "",
-                        "token": process.env.TTS_BYTEDANCE_TOKEN || "",
-                        "cluster": process.env.TTS_BYTEDANCE_CLUSTER || ""
-                    },
-                    "speed_ratio": 1,
-                    "volume_ratio": 1,
-                    "pitch_ratio": 1,
-                    "emotion": "happy",
-                    "audio": {
-                        "rate": 24000,
-                        "voice_type": process.env.TTS_BYTEDANCE_VOICE_TYPE || ""
-                    }
-                },
-                FilterText: [{ BeginCharacters: "(", EndCharacters: ")" }, { BeginCharacters: "（", EndCharacters: "）" }, { BeginCharacters: "{", EndCharacters: "}" }],
-            };
-        }
-
+        console.error("TTS config not found, return default config");
         return {
             Vendor: "MiniMax",
             Params: {
