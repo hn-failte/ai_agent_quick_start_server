@@ -64,7 +64,7 @@ function randomId(prefix: string): string {
 function getDigitalHumanConfig(
   body: StartLiveDigitalHumanRequest,
   nativeBody: NativeStartLiveDigitalHumanRequest,
-  rtcConfig?: LiveDigitalHumanRtcRequest
+  rtcConfig?: LiveDigitalHumanRtcRequest | null
 ): DigitalHumanInfo | null {
   if (body.digital_human?.DigitalHumanId && body.digital_human?.ConfigId) {
     return body.digital_human;
